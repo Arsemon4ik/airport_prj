@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Login{% endblock title %}
+
+{% block content %}
+    <div class="d-flex align-items-center flex-column justify-content-center vh-100" id="header">
+        <div class="border" style="padding: 86px 250px 100px">
+            <h1 class="display-4 text-center pb-5">Login</h1>
+            <form class="" action="" method="post">
+                {% csrf_token %}
+                <div class="form-group">
+                    <input name="email" class="form-control form-control-lg" autofocus="autofocus" placeholder="Ел.пошта" type="email"
+                           required>
+                </div>
+                <div class="form-group">
+                    <input name="password" class="form-control form-control-lg" placeholder="Пароль" type="password"
+                           required>
+                </div>
+                <div class="form-group d-flex flex-row-reverse">
+                    <button class="btn btn-primary btn-lg" style="padding: 8px 30px">Увійти</button>
+                </div>
+            </form>
+            <p class="mt-3">Не маєте акаунту, створіть новий - <a class="font-weight-bold" href="{% url 'register' %}">Зареєструватись</a></p>
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} mb-0 alert-dismissible fade show bg-warning" role="alert">
+                    <strong>Помилка: </strong> {{ message|safe }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

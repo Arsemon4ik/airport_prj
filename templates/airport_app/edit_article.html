@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Редагування{% endblock title %}
+
+{% block content %}
+
+    {% include 'navbar.html' %}
+    <div class="mx-5 w-75">
+        <h2 class="py-3">Редагувати {{ article.get_type_display }} {{ article.id }}</h2>
+        <form class="mt-4 w-50" action="" method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="name">Тип роботи</label>
+                {{ form.type }}
+            </div>
+            <div class="form-group">
+                <label for="name">Опис</label>
+                {{ form.description }}
+            </div>
+            <div class="form-group">
+                <label for="score">Файл</label>
+                {{ form.file }}
+            </div>
+            <div class="form-group d-flex flex-row-reverse">
+                <button type="submit"
+                        name="add_task"
+                        class="btn btn-success rounded py-2 px-2 h-25 my-3 border-0">
+                    Зберегти
+                </button>
+            </div>
+        </form>
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} mb-0 alert-dismissible fade show bg-warning" role="alert">
+                <strong>Помилка: </strong> {{ message|safe }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

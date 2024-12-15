@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Data sets{% endblock title %}
+
+{% block content %}
+    {% include 'navbar.html' %}
+    <div class="mx-5">
+        <div class="w-100">
+            <div class="d-lg-flex justify-content-between">
+                <div>
+                    <h2 class="py-3">Мої роботи</h2>
+                    <div class="chart-container" style="position: relative;">
+                        <canvas id="myBarChart" width="150" height="150"
+                                style="max-height: 400px; min-width: 600px"></canvas>
+                    </div>
+                </div>
+                <div class="ml-2 w-100 d-md-flex justify-content-md-center">
+                    <form class="w-auto" action="" method="post" enctype="multipart/form-data">
+                        <h2 class="py-3">Завантажити роботу</h2>
+                        {% csrf_token %}
+                        <div class="form-group">
+                            <label for="name">Тип роботи</label>
+                            {{ form.type }}
+                        </div>
+                        <div class="form-group">
+                            <label for="name">Опис</label>
+                            {{ form.description }}
+                        </div>
+                        <div class="form-group">
+                            <label for="score">Файл</label>
+                            {{ form.file }}
+                        </div>
+                        <div class="form-group d-flex flex-row-reverse">
+                            <button type="submit"
+                                    name="add_task"
+                                    class="btn btn-success rounded py-2 px-2 h-25 my-3 border-0">
+                                Зберегти
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} mt-3 alert-dismissible fade show bg-warning" role="alert">
+                    <strong>Помилка: </strong> {{ message|safe }}
+                    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+            {% endfor %}
+            <table class="table table-responsive-lg table-bordered mb-5">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Назва</th>
+                    <th scope="col">Тип роботи</th>
+                    <th scope="col">Опис</th>
+                    <th scope="col">Створено</th>
+                    <th scope="col">Посилання</th>
+                    <th scope="col">Редагування</th>
+                </tr>
+                </thead>
+                <tbody id="data_sets_table">
+                {% if articles %}
+                    {% for article in articles %}
+                        <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td>{{ article.name }}</td>
+                            <td>{{ article.get_type_display }}</td>
+                            <td style="width: 420px">{{ article.description }}</td>
+                            <td style="width: 200px">{{ article.created_at }}</td>
+                            <td><a target="_blank" href="{{ article.file.url }}">Завантажити</a></td>
+                            <td><a href="{% url 'edit_article' article.id %}"
+                                   class="link-primary mr-4">Редагувати</a>
+                                <a href=""
+                                   class="text-danger"
+                                   data-toggle="modal"
+                                   data-target="#exampleModalSchema{{ article.id }}">Видалити</a>
+
+                                <!-- Modal delete schema !-->
+
+                                <div class="modal fade" id="exampleModalSchema{{ article.id }}" tabindex="-1"
+                                     role="dialog" aria-labelledby="exampleModalSchema"
+                                     aria-hidden="true">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title"
+                                                    id="exampleModalLabel{{ article.id }}">Ви впевнені, що
+                                                    хочете видалити цю роботу?</h5>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                        aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <a href="{% url 'delete_article' article.id %}" type="button"
+                                                   class="btn btn-primary">Так, видалити!</a>
+                                                <button type="button" class="btn btn-secondary"
+                                                        data-dismiss="modal">Закрити вікно
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- End Modal delete schema !-->
+
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <h2 class="text-center py-4">Будь-ласка додайте ваші роботи 😊</h2>
+                {% endif %}
+                </tbody>
+            </table>
+
+        </div>
+
+    </div>
+
+
+
+{% endblock %}
+
+{% block script %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const ctxBar = document.getElementById('myBarChart');
+
+        const dataBar = {
+            labels: ['Лабораторні', 'Курсові', 'Бакалаврські', 'Магістерські'],
+            datasets: [
+                {
+                    label: ['Лабораторні', 'Курсові', 'Бакалаврські', 'Магістерські'],
+                    data: JSON.parse("{{count_types}}"),
+                    barPercentage: 1,
+                    backgroundColor: [
+                        'rgba(80, 200, 120, .8)',
+                        'rgba(153, 102, 255, .8)',
+                        'rgba(50, 102, 255, .8)',
+                        'rgba(200, 200, 40, .8)',
+                    ],
+                    barThickness: 80,
+
+                    borderRadius: 5,
+                    borderSkipped: false,
+
+                }
+            ]
+        };
+
+        const configBar = {
+            type: 'bar',
+            data: dataBar,
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'top',
+                    },
+
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            },
+        };
+        new Chart(ctxBar, configBar)
+    </script>
+
+
+{% endblock %}

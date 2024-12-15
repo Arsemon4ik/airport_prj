@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Профіль{% endblock title %}
+
+{% block content %}
+
+    {% include 'navbar.html' %}
+    <div class="mx-5">
+        <div class="d-flex align-items-center">
+            <h2 class="py-3">Пошук користувачів</h2>
+        </div>
+        <form method="get" class="d-lg-flex justify-content-lg-between align-items-center w-75">
+            {{ filter.form.as_p }}
+            <button type="submit" class="btn btn-lg btn-dark h-25">Шукати</button>
+        </form>
+        {% if filter.qs %}
+            <div class="mt-4">
+                <table class="table table-responsive-sm table-bordered">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Аватар</th>
+                        <th scope="col">Ім`я користувача</th>
+                        <th scope="col">Пошта користувача</th>
+                    </tr>
+                    </thead>
+                    <tbody id="data_sets_table">
+
+                    {% for user in filter.qs %}
+                        <tr>
+                            <th scope="row">{{ forloop.counter }}</th>
+                            <td><img src="{{ user.photo.url }}" alt="Аватар"
+                                     style="height: 24px; border-radius: 50%"></td>
+                            <td><a href="{% url 'profile' user.id %}">{{ user.username }}</a></td>
+                            <td>{{ user.email }}</td>
+                        </tr>
+                    {% endfor %}
+
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <h2 class="text-center py-4">Нікого не знайдено!</h2>
+        {% endif %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} mb-0 alert-dismissible fade show bg-warning" role="alert">
+                <strong>Помилка: </strong> {{ message|safe }}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        {% endfor %}
+    </div>
+
+{% endblock %}

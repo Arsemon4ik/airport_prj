@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Профіль{% endblock title %}
+
+{% block content %}
+
+    {% include 'navbar.html' %}
+    <div class="mx-5 w-75" style="font-size: 20px">
+        <div class="d-flex align-items-center">
+            <h2 class="py-3 mr-4">Профіль {{ user.username }}</h2>
+            <img src="{{ user.photo.url }}" alt="Аватар" style="height: 50px; border-radius: 50%">
+        </div>
+        <h4 class="">Статус: {{ user.get_campus_type_display }}</h4>
+        <div class="form-group">
+            <strong>Ел. Пошта: </strong>
+            {{ user.email }}
+        </div>
+        {% if user.bio %}
+            <div class="form-group">
+                <strong>Про себе</strong>
+                <p>{{ user.bio }}</p>
+            </div>
+        {% endif %}
+        <div class="mt-3">
+            {% if articles %}
+                <h2 class="mt-3">Роботи автора</h2>
+                <table class="table table-responsive-md table-bordered">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Назва роботи</th>
+                        <th scope="col">Тип</th>
+                        <th scope="col">Опис</th>
+                        <th scope="col">Створено</th>
+                        <th scope="col">Посилання</th>
+                    </tr>
+                    </thead>
+                    <tbody id="data_sets_table">
+                    {% if articles %}
+                        {% for article in articles %}
+                            <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td>{{ article.name }}</td>
+                                <td>{{ article.get_type_display }}</td>
+                                <td>{{ article.description }}</td>
+                                <td style="width: 200px">{{ article.created_at }}</td>
+                                <td><a target="_blank" href="{{ article.file.url }}">Завантажити</a></td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                    </tbody>
+                </table>
+            {% else %}
+                <h2 class="text-center py-4">Тут ще не має жодної роботи!</h2>
+            {% endif %}
+        </div>
+    </div>
+
+{% endblock %}

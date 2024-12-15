@@ -1,0 +1,63 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Головна{% endblock title %}
+
+{% block content %}
+
+    {% include 'navbar.html' %}
+    <div class="px-5 w-100">
+        <div class="w-100">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="py-3">Останні наукові роботи</h2>
+            </div>
+            {% if articles %}
+                <table class="table table-responsive table-bordered">
+                    <thead>
+                    <tr>
+                        <th scope="col">#</th>
+                        <th scope="col">Автор</th>
+                        <th scope="col">Назва роботи</th>
+                        <th scope="col">Тип</th>
+                        <th scope="col">Опис</th>
+                        <th scope="col">Створено</th>
+                        <th scope="col">Посилання</th>
+                    </tr>
+                    </thead>
+                    <tbody id="data_sets_table">
+                    {% if articles %}
+                        {% for article in articles %}
+                            <tr>
+                                <th scope="row">{{ forloop.counter }}</th>
+                                <td><img src="{{ article.user.photo.url }}" alt="Аватар" style="height: 24px; border-radius: 50%"><br><a href="{% url 'profile' article.user.id %}">{{ article.user.username }}</a></td>
+                                <td>{{ article.name  }}</td>
+                                <td>{{ article.get_type_display  }}</td>
+                                <td>{{ article.description }}</td>
+                                <td style="width: 200px">{{ article.created_at|timesince }} тому</td>
+                                <td><a target="_blank" href="{{ article.file.url }}">Завантажити</a></td>
+                            </tr>
+                        {% endfor %}
+                    {% endif %}
+                    </tbody>
+                </table>
+            {% else %}
+                <h2 class="text-center py-4">Тут ще не має жодної роботи!</h2>
+            {% endif %}
+
+        </div>
+
+    </div>
+
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} mb-0 alert-dismissible fade show bg-warning" role="alert">
+            <strong>Помилка: </strong> {{ message|safe }}
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+    {% endfor %}
+
+{% endblock %}
+
+{% block script %}
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
