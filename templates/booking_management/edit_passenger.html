@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Додати нового пасажира{% endblock title %}
+
+{% block content %}
+
+{% include 'navbar.html' %}
+
+<div class="container mt-5">
+    <h2 class="mb-4">Редагувати пасажира</h2>
+
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-success">Зберегти зміти</button>
+        <a href="{% url 'my_profile' %}" class="btn btn-secondary">Повернутись</a>
+    </form>
+</div>
+
+{% endblock %}
