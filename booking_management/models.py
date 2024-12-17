@@ -1,4 +1,5 @@
 import uuid
+import shortuuid
 from django.db import models
 from datetime import timedelta
 from authentication.models import User
@@ -29,13 +30,34 @@ class Baggage(models.Model):
 
 class Flight(models.Model):
     # Рейс
-    flight_number = models.CharField(max_length=10, unique=True)
+    flight_number = models.CharField(max_length=10, unique=True, blank=True, editable=False)
     origin = models.CharField(max_length=100)  # Місто відправлення
     destination = models.CharField(max_length=100)  # Місто призначення
     departure_time = models.DateTimeField()  # Час відправлення
     arrival_time = models.DateTimeField()  # Час прибуття
     economy_price = models.DecimalField(max_digits=10, decimal_places=2)  # Ціна за економ
     business_price = models.DecimalField(max_digits=10, decimal_places=2)  # Ціна за бізнес
+
+    def save(self, *args, **kwargs):
+        # Generate a unique flight number if it doesn't already exist
+        if not self.flight_number:
+            self.flight_number = self._generate_flight_number()
+        super().save(*args, **kwargs)
+
+    @property
+    def duration(self):
+        # Calculate and return the duration in hours and minutes
+        delta = self.arrival_time - self.departure_time
+        hours, minutes = divmod(delta.seconds // 60, 60)
+        return f"{hours}h {minutes} min"
+
+    def _generate_flight_number(self):
+        """
+        Generate a unique flight number using shortuuid, with a custom prefix.
+        """
+        prefix = "FL"  # Static prefix for flight numbers
+        unique_id = shortuuid.ShortUUID().random(length=6)  # Generate a random 6-character ID
+        return f"{prefix}{unique_id}"
 
     def __str__(self):
         return f"{self.flight_number} - {self.origin} to {self.destination}"
@@ -56,9 +78,10 @@ class Booking(models.Model):
         ('Cancelled', 'Cancelled'),
     ]
     booking_code = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+    booking_status = models.CharField(choices=STATUS_CHOICES, default='Pending', max_length=79)
     passenger = models.ForeignKey(Passenger, on_delete=models.CASCADE, related_name="bookings")
     flight = models.ForeignKey(Flight, on_delete=models.CASCADE, related_name="bookings")  # Зв’язок з рейсом
-    baggage = models.ForeignKey(Baggage, on_delete=models.CASCADE, related_name="bookings")  # Зв’язок з рейсом
+    baggage = models.ForeignKey(Baggage, on_delete=models.CASCADE, related_name="bookings", null=True, blank=True)
     seat_class = models.CharField(
         max_length=20,
         choices=[('economy', 'Economy'), ('business', 'Business')],
@@ -66,7 +89,19 @@ class Booking(models.Model):
     )
     booking_date = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')  # Статус оплати
+
+    def save(self, *args, **kwargs):
+        # Generate a unique flight number if it doesn't already exist
+        if not self.booking_code:
+            self.booking_code = self._generate_booking_code()
+        super().save(*args, **kwargs)
+
+    def _generate_booking_code(self):
+        """
+        Generate a unique booking code.
+        """
+        unique_id = shortuuid.ShortUUID().random(length=12)  # Generate a random 6-character ID
+        return f"{unique_id}"
 
     def __str__(self):
         return f"Booking for {self.passenger.email} on flight {self.flight.flight_number}"

@@ -1,0 +1,108 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Create Booking{% endblock title %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Elegant Card with Cyan Header -->
+            <div class="card border-0 shadow-lg rounded-lg">
+                <div class="card-header text-white text-center py-4" style="background-color: #00bcd4;">
+                    <h2 class="mb-0"><i class="fas fa-ticket-alt"></i> Забронюй</h2>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <!-- Passenger Selection -->
+                        <div class="mb-4">
+                            <h4 class="mb-3"><i class="fas fa-user-check"></i> Select Passenger</h4>
+                            <div class="input-group">
+                                <span class="input-group-text bg-light"><i class="fas fa-users text-primary"></i></span>
+                                <select class="form-select shadow-sm {% if form.passenger.errors %}is-invalid{% endif %}" id="passenger" name="passenger">
+                                    <option value="" disabled selected>Select a passenger</option>
+                                    {% for passenger in form.passenger.field.queryset %}
+                                        <option value="{{ passenger.id }}" {% if passenger.id|stringformat:"s" == form.passenger.value|stringformat:"s" %}selected{% endif %}>
+                                            {{ passenger.first_name }} {{ passenger.last_name }} ({{ passenger.email }})
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                                {% if form.passenger.errors %}
+                                    <div class="invalid-feedback">
+                                        {{ form.passenger.errors }}
+                                    </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <hr class="my-4">
+
+                        <!-- Booking Details -->
+                        <div class="mb-4">
+                            <h4 class="mb-3"><i class="fas fa-bookmark"></i> Booking Details</h4>
+                            
+                            <!-- Flight Selection -->
+                            <div class="mb-3">
+                                <label for="flight" class="form-label"><i class="fas fa-plane"></i> Select Flight</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-plane-departure text-primary"></i></span>
+                                    <select class="form-select shadow-sm {% if form.flight.errors %}is-invalid{% endif %}" id="flight" name="flight">
+                                        <option value="" disabled selected>Select a flight</option>
+                                        {% for flight in form.flight.field.queryset %}
+                                            <option value="{{ flight.id }}" {% if flight.id|stringformat:"s" == form.flight.value|stringformat:"s" %}selected{% endif %}>
+                                                {{ flight.origin }} ➔ {{ flight.destination }} on {{ flight.departure_time|date:"M d, Y H:i" }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Baggage Selection -->
+                            <div class="mb-3">
+                                <label for="baggage" class="form-label"><i class="fas fa-suitcase"></i> Baggage Option</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light"><i class="fas fa-suitcase-rolling text-primary"></i></span>
+                                    <select class="form-select shadow-sm {% if form.baggage.errors %}is-invalid{% endif %}" id="baggage" name="baggage">
+                                        <option value="" disabled selected>Select baggage option</option>
+                                        {% for baggage_option in form.baggage.field.queryset %}
+                                            <option value="{{ baggage_option.id }}" {% if baggage_option.id|stringformat:"s" == form.baggage.value|stringformat:"s" %}selected{% endif %}>
+                                                {{ baggage_option.name }} - ${{ baggage_option.price }}
+                                            </option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Seat Class -->
+                            <div class="mb-3">
+                                <label class="form-label"><i class="fas fa-chair"></i> Seat Class</label>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="seat_class" id="economy" value="economy" {% if form.seat_class.value == "economy" %}checked{% endif %}>
+                                    <label class="form-check-label" for="economy"><i class="fas fa-umbrella-beach"></i> Economy</label>
+                                </div>
+                                <div class="form-check form-check-inline">
+                                    <input class="form-check-input" type="radio" name="seat_class" id="business" value="business" {% if form.seat_class.value == "business" %}checked{% endif %}>
+                                    <label class="form-check-label" for="business"><i class="fas fa-briefcase"></i> Business</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Submit Button -->
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-lg text-white shadow" style="background-color: #00bcd4;">
+                                <i class="fas fa-paper-plane"></i> Створити
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="card-footer text-center bg-light py-3">
+                    <small>Your comfort, our priority!</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

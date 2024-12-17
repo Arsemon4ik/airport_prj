@@ -1,0 +1,86 @@
+<!-- booking_detail.html -->
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Booking Details{% endblock title %}
+
+{% block content %}
+{% include 'navbar.html' %} <!-- Ensure you have a navbar or remove this line if not needed -->
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Booking Detail Card -->
+            <div class="card shadow-lg rounded-lg">
+                <!-- Card Header -->
+                <div class="card-header card-header-custom">
+                    <h3 class="mb-0"><i class="fas fa-ticket-alt"></i> Booking Details</h3>
+                </div>
+                
+                <!-- Card Body -->
+                <div class="card-body">
+                    <!-- Booking Status -->
+                    <div class="mb-4">
+                        <div class="section-title">
+                            <i class="fas fa-info-circle"></i>
+                            <h5>Status:</h5>
+                        </div>
+                        <span class="badge badge-custom 
+                            {% if booking.status == 'Confirmed' %}
+                                bg-success
+                            {% elif booking.status == 'Cancelled' %}
+                                bg-danger
+                            {% elif booking.status == 'Pending' %}
+                                bg-warning text-dark
+                            {% else %}
+                                bg-secondary
+                            {% endif %}">
+                            {{ booking.get_status_display }}
+                        </span>
+                    </div>
+                    
+                    <!-- Passenger Information -->
+                    <div class="mb-4">
+                        <div class="section-title">
+                            <i class="fas fa-user"></i>
+                            <h5>Passenger Information</h5>
+                        </div>
+                        <p><strong>Name:</strong> {{ booking.passenger.first_name }} {{ booking.passenger.last_name }}</p>
+                        <p><strong>Email:</strong> {{ booking.passenger.email }}</p>
+                        <p><strong>Phone:</strong> {{ booking.passenger.phone }}</p>
+                    </div>
+                    
+                    <!-- Flight Information -->
+                    <div class="mb-4">
+                        <div class="section-title">
+                            <i class="fas fa-plane-departure"></i>
+                            <h5>Flight Information</h5>
+                        </div>
+                        <p><strong>Flight Number:</strong> {{ booking.flight.flight_number }}</p>
+                        <p><strong>Origin:</strong> {{ booking.flight.origin }}</p>
+                        <p><strong>Destination:</strong> {{ booking.flight.destination }}</p>
+                        <p><strong>Departure Time:</strong> {{ booking.flight.departure_time|date:"M d, Y H:i" }}</p>
+                        <p><strong>Arrival Time:</strong> {{ booking.flight.arrival_time|date:"M d, Y H:i" }}</p>
+                    </div>
+                    
+                    <!-- Baggage and Seat Class -->
+                    <div class="mb-4">
+                        <div class="section-title">
+                            <i class="fas fa-suitcase-rolling"></i>
+                            <h5>Baggage and Seat Class</h5>
+                        </div>
+                        <p><strong>Baggage Option:</strong> {{ booking.baggage.name }} - ${{ booking.baggage.price }}</p>
+                        <p><strong>Seat Class:</strong> {{ booking.get_seat_class_display }}</p>
+                    </div>
+                </div>
+                
+                <!-- Card Footer with Back Button -->
+                <div class="card-footer text-center bg-light py-3">
+                    <a href="{% url 'booking_list' %}" class="btn btn-secondary rounded-pill shadow-sm">
+                        <i class="fas fa-arrow-left me-2"></i> Back to Bookings
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock content %}

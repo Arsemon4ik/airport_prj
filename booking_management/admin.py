@@ -4,7 +4,9 @@ from .models import (
     Payment,
     Baggage,
     Booking,
-    BoardingPass)
+    BoardingPass,
+    Flight
+)
 
 # Register your models here.
 admin.site.register(Passenger)
@@ -12,3 +14,4 @@ admin.site.register(Payment)
 admin.site.register(Baggage)
 admin.site.register(Booking)
 admin.site.register(BoardingPass)
+admin.site.register(Flight)

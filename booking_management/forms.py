@@ -1,4 +1,4 @@
-from .models import Passenger
+from .models import Passenger, Booking
 from django import forms
 
 
@@ -19,4 +19,16 @@ class PassengerForm(forms.ModelForm):
             'last_name': 'Last Name',
             'email': 'Email Address',
             'phone': 'Phone Number',
+        }
+
+
+class BookingForm(forms.ModelForm):
+    class Meta:
+        model = Booking
+        fields = ['passenger', 'flight', 'baggage', 'seat_class']
+        widgets = {
+            'passenger': forms.Select(attrs={'class': 'form-control'}),
+            'flight': forms.Select(attrs={'class': 'form-control'}),
+            'baggage': forms.Select(attrs={'class': 'form-control'}),
+            'seat_class': forms.Select(attrs={'class': 'form-control'}),
         }
