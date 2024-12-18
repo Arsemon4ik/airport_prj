@@ -1,0 +1,104 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Bookings{% endblock title %}
+
+{% block content %}
+{% include 'navbar.html' %}
+
+<div class="container mt-4">
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-md-3">
+            <h5 class="mb-3">Фільтри</h5>
+            <form method="get">
+                <div class="form-group mb-3">
+                    <label for="booking_status">Статус бронювання</label>
+                    <select class="form-control" name="booking_status" id="booking_status">
+                        <option value="">Всі</option>
+                        <option value="Pending">Очікується</option>
+                        <option value="Confirmed">Підтверджено</option>
+                        <option value="Cancelled">Скасовано</option>
+                    </select>
+                </div>
+                <div class="form-group mb-3">
+                    <label for="seat_class">Клас</label>
+                    <select class="form-control" name="seat_class" id="seat_class">
+                        <option value="">Всі</option>
+                        <option value="Economy">Economy</option>
+                        <option value="Business">Business</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-primary w-100">Застосувати</button>
+                <a href="{% url 'booking_list' %}" class="btn btn-secondary w-100 mt-2">Скинути</a>
+            </form>
+        </div>
+
+        <!-- Bookings List -->
+        <div class="col-md-9">
+            <h3 class="mb-4">Список бронювань</h3>
+            {% if bookings %}
+                {% for booking in bookings %}
+                <div class="card mb-3 shadow-sm rounded">
+                    <div class="row g-0">
+                        <!-- Left Side: Booking Details -->
+                        <div class="col-md-8 p-4 d-flex flex-column justify-content-between">
+                            <div>
+                                <h5 class="text-primary mb-2">{{ booking.flight.flight_number }}</h5>
+                                <p class="mb-1 text-muted">
+                                    Відправлення: <strong>{{ booking.flight.origin }}</strong> → <strong>{{ booking.flight.destination }}</strong>
+                                </p>
+                                <p class="mb-2 text-muted">
+                                    Дата: <strong>{{ booking.booking_date|date:"d M Y" }}</strong>
+                                </p>
+                                <span class="badge bg-info text-white">{{ booking.get_seat_class_display }}</span>
+                            </div>
+                            <div class="mt-3">
+                                <h6 class="fw-bold mb-1">Пасажир</h6>
+                                <p class="mb-0">{{ booking.passenger.first_name }} {{ booking.passenger.last_name }}</p>
+                                <p class="text-muted"><small>{{ booking.passenger.email }}</small></p>
+                            </div>
+                        </div>
+
+                        <!-- Right Side: Status and Buttons -->
+                        <div class="col-md-4 bg-light p-4 text-center d-flex flex-column justify-content-between">
+                            <!-- Status -->
+                            <div class="mb-3">
+                                <h6 class="mb-0">Статус:</h6>
+                                <span class="badge fs-6
+                                    {% if booking.booking_status == 'Confirmed' %} bg-success
+                                    {% elif booking.booking_status == 'Cancelled' %} bg-danger
+                                    {% else %} bg-warning text-dark
+                                    {% endif %}">
+                                    {{ booking.get_status_display }}
+                                </span>
+                            </div>
+                            <!-- Buttons -->
+                            <div class="d-grid gap-2">
+                                <a href="{% url 'booking_detail' booking.pk %}" class="btn btn-info text-white rounded-pill shadow-sm">
+                                    <i class="fas fa-info-circle me-1"></i> Деталі
+                                </a>
+                                {% if booking.booking_status == 'Pending' %}
+                                <a href="{% url 'booking_update' booking.pk %}" class="btn btn-warning text-dark rounded-pill shadow-sm">
+                                    <i class="fas fa-edit me-1"></i> Редагувати
+                                </a>
+                                {% endif %}
+                                <form method="post" action="{% url 'booking_delete' booking.pk %}" class="m-0">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-danger text-white rounded-pill shadow-sm w-100">
+                                        <i class="fas fa-trash-alt me-1"></i> Видалити
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-warning text-center" role="alert">
+                    Бронювань не знайдено за обраними фільтрами.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

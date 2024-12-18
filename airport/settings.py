@@ -40,6 +40,7 @@ INSTALLED_APPS = [
 
     'authentication',
     'airport_app',
+    'booking_management',
 
     'django_filters',
     'django_extensions',

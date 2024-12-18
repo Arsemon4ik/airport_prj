@@ -1,0 +1,106 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Flights{% endblock title %}
+
+{% block content %}
+
+    {% include 'navbar.html' %}
+<div class="container mt-4">
+    <div class="row">
+        <!-- Filters Sidebar -->
+        <div class="col-md-3">
+            <h5 class="mb-3">Фільтри</h5>
+            <form method="get">
+                <div class="form-group">
+                    <label for="origin">Місто відправлення</label>
+                    <input type="text" class="form-control" name="origin" id="origin" placeholder="Введіть місто">
+                </div>
+                <div class="form-group">
+                    <label for="destination">Місто призначення</label>
+                    <input type="text" class="form-control" name="destination" id="destination" placeholder="Введіть місто">
+                </div>
+                <div class="form-group">
+                    <label for="min_price">Мінімальна ціна (Econom)</label>
+                    <input type="number" class="form-control" name="min_price" id="min_price" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="max_price">Максимальна ціна (Econom)</label>
+                    <input type="number" class="form-control" name="max_price" id="max_price" placeholder="10000">
+                </div>
+                <div class="form-group">
+                    <label for="min_price">Мінімальна ціна (Business)</label>
+                    <input type="number" class="form-control" name="min_price" id="min_price" placeholder="0">
+                </div>
+                <div class="form-group">
+                    <label for="max_price">Максимальна ціна (Business)</label>
+                    <input type="number" class="form-control" name="max_price" id="max_price" placeholder="10000">
+                </div>
+                <button type="submit" class="btn btn-primary btn-block">Застосувати</button>
+                <a href="{% url 'flights' %}" class="btn btn-secondary btn-block mt-2">Скинути</a>
+            </form>
+        </div>
+
+        <!-- Flights List -->
+        <div class="col-md-9">
+            {% if flights %}
+{#                <div class="card mb-3 shadow-sm">#}
+{#                    <div class="card-header bg-light d-flex justify-content-end">#}
+{#                        <div>#}
+{#                            <button class="btn btn-outline-secondary btn-sm">Рекомендовані(price to journey duration ratio)</button>#}
+{#                            <button class="btn btn-outline-secondary btn-sm">Найкоротші</button>#}
+{#                            <button class="btn btn-success btn-sm">Найдешевше</button>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </div>#}
+
+                {% for flight in flights %}
+                <div class="card mb-3 shadow-sm">
+                    <div class="row no-gutters align-items-center">
+                        <!-- Flight Details -->
+                        <div class="col-md-8 p-3">
+                            <div class="d-flex justify-content-between">
+                                <!-- Departure -->
+                                <div>
+                                    <h5 class="font-weight-bold mb-1">{{ flight.departure_time|date:"H:i" }}
+                                        <span class="text-uppercase">{{ flight.origin }}</span>
+                                    </h5>
+                                    <p class="text-muted mb-1">{{ flight.departure_time|date:"d M (D)" }}</p>
+                                    <span class="text-info">Літак прямий</span>
+                                </div>
+
+                                <!-- Duration -->
+                                <div class="text-center">
+                                    <small class="text-muted">{{ flight.arrival_time|time:"H:i" }} •
+                                        {{ flight.duration }}</small>
+                                </div>
+
+                                <!-- Arrival -->
+                                <div>
+                                    <h5 class="font-weight-bold mb-1">{{ flight.arrival_time|date:"H:i" }}
+                                        <span class="text-uppercase">{{ flight.destination }}</span>
+                                    </h5>
+                                    <p class="text-muted mb-1">{{ flight.arrival_time|date:"d M (D)" }}</p>
+                                    <span class="text-info">Літак прямий</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Price Section -->
+                        <div class="col-md-4 bg-light text-center p-4">
+                            <h5 class="font-weight-bold text-dark mb-2">Economy: {{ flight.economy_price }}$</h5>
+                            <h5 class="font-weight-bold text-dark mb-2">Business: {{ flight.business_price }}$</h5>
+                            <p class="text-success mb-2"><small>Оплата за 30 днів</small></p>
+                            <a href="{% url 'booking_create' %}" class="btn btn-danger btn-lg rounded-pill px-4">Вибрати</a>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="alert alert-warning text-center" role="alert">
+                    Рейси не знайдено за обраними фільтрами.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
