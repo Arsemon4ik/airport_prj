@@ -27,7 +27,7 @@
                                     <i class="fas fa-info-circle"></i>
                                     <h5>Status:</h5>
                                 </div>
-                                <span class="badge badge-custom
+                                <span class="badge badge-custom 
                                     {% if booking.booking_status == 'Confirmed' %}
                                         bg-success
                                     {% elif booking.booking_status == 'Cancelled' %}
@@ -40,7 +40,7 @@
                                     {{ booking.get_status_display }}
                                 </span>
                             </div>
-
+                            
                             <!-- Passenger Information -->
                             <div class="mb-4">
                                 <div class="section-title">
@@ -51,7 +51,7 @@
                                 <p><strong>Email:</strong> {{ booking.passenger.email }}</p>
                                 <p><strong>Phone:</strong> {{ booking.passenger.phone }}</p>
                             </div>
-
+                            
                             <!-- Flight Information -->
                             <div class="mb-4">
                                 <div class="section-title">
@@ -64,7 +64,7 @@
                                 <p><strong>Departure Time:</strong> {{ booking.flight.departure_time|date:"M d, Y H:i" }}</p>
                                 <p><strong>Arrival Time:</strong> {{ booking.flight.arrival_time|date:"M d, Y H:i" }}</p>
                             </div>
-
+                            
                             <!-- Baggage and Seat Class -->
                             <div class="mb-4">
                                 <div class="section-title">
@@ -75,7 +75,7 @@
                                 <p><strong>Seat Class:</strong> {{ booking.get_seat_class_display }}</p>
                             </div>
                         </div>
-
+                        
                         <!-- QR Code Column -->
                         <div class="col-md-4 text-center">
                             {% if booking.booking_status == 'Confirmed' %}
