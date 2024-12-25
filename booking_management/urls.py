@@ -21,4 +21,6 @@ urlpatterns = [
     path('bookings/add/', views.booking_create, name='booking_create'),
     path('bookings/<int:pk>/edit/', views.booking_update, name='booking_update'),
     path('bookings/<int:pk>/delete/', views.booking_delete, name='booking_delete'),
+
+    path('monopay-callback/', views.monopay_callback, name="monopay_callback"),
 ]

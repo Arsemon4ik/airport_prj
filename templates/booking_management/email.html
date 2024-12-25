@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Confirmation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f8f9fa;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .header {
+            background-color: #007bff;
+            color: #ffffff;
+            text-align: center;
+            padding: 20px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            padding: 20px;
+        }
+        .content h2 {
+            color: #007bff;
+            font-size: 20px;
+            margin-bottom: 10px;
+        }
+        .content p {
+            margin: 5px 0;
+        }
+        .table-container {
+            margin-top: 20px;
+        }
+        .info-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .info-table th,
+        .info-table td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        .info-table th {
+            background-color: #f1f1f1;
+            color: #333;
+        }
+        .footer {
+            background-color: #f8f9fa;
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+            color: #888;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <!-- Header Section -->
+        <div class="header">
+            <h1>Flight Booking Confirmation</h1>
+        </div>
+        <!-- Content Section -->
+        <div class="content">
+            <h2>Dear {{ booking.passenger.first_name }},</h2>
+            <p>Thank you for booking your flight with us. Below are the details of your booking:</p>
+            <div class="table-container">
+                <table class="info-table">
+                    <tr>
+                        <th>Booking Code</th>
+                        <td>{{ booking.booking_code }}</td>
+                    </tr>
+                    <tr>
+                        <th>Passenger INFO</th>
+                        <td>{{ booking.passenger.first_name }} - {{ booking.passenger.last_name }}</td>
+                    </tr>
+                    <tr>
+                        <th>Flight Number</th>
+                        <td>{{ booking.flight.flight_number }}</td>
+                    </tr>
+                    <tr>
+                        <th>Origin</th>
+                        <td>{{ booking.flight.origin }}</td>
+                    </tr>
+                    <tr>
+                        <th>Destination</th>
+                        <td>{{ booking.flight.destination }}</td>
+                    </tr>
+                    <tr>
+                        <th>Departure Time</th>
+                        <td>{{ booking.flight.departure_time }}</td>
+                    </tr>
+                    <tr>
+                        <th>Arrival Time</th>
+                        <td>{{ booking.flight.arrival_time }}</td>
+                    </tr>
+                    <tr>
+                        <th>Seat Class</th>
+                        <td>{{ booking.seat_class }}</td>
+                    </tr>
+                    <tr>
+                        <th>Baggage</th>
+                        <td>Baggage {{ booking.baggage.get_baggage_type_display }} with {{ booking.baggage.total_weight }} weight</td>
+                    </tr>
+                    <tr>
+                        <th>Total Price</th>
+                        <td>{{ booking.total_price }} UAH.</td>
+                    </tr>
+                </table>
+            </div>
+            <p>If you have any questions or need further assistance, please contact our support team.</p>
+            <p>We wish you a pleasant flight!</p>
+        </div>
+        <!-- Footer Section -->
+        <div class="footer">
+            <p>&copy; {{ current_year }} Your Airline. All rights reserved.</p>
+            <p>This is an automated message. Please do not reply to this email.</p>
+        </div>
+    </div>
+</body>
+</html>
