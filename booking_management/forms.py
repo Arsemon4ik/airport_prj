@@ -37,17 +37,16 @@ class BookingForm(forms.ModelForm):
 class BaggageForm(forms.ModelForm):
     class Meta:
         model = Baggage
-        fields = ['total_weight', 'baggage_type', 'additional_baggage_fee']
+        fields = ['total_weight', 'baggage_type']
         widgets = {
             'total_weight': forms.NumberInput(attrs={'class': 'form-control'}),
             'baggage_type': forms.Select(attrs={'class': 'form-control'}),
-            'additional_baggage_fee': forms.NumberInput(attrs={'class': 'form-control'}),
         }
 
 # FormSet для багажу
 BaggageFormSet = modelformset_factory(
         Baggage,
-        fields=('total_weight', 'baggage_type', 'additional_baggage_fee'),
+        fields=('total_weight', 'baggage_type'),
         extra=1,  # Додаткові форми для багажу
         can_delete=True  # Можливість видалення
     )

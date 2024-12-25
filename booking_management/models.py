@@ -56,8 +56,8 @@ class Flight(models.Model):
         Generate a unique flight number using shortuuid, with a custom prefix.
         """
         prefix = "FL"  # Static prefix for flight numbers
-        unique_id = shortuuid.ShortUUID().random(length=6)  # Generate a random 6-character ID
-        return f"{prefix}{unique_id}"
+        unique_id = uuid.uuid4()  # Generate a random 6-character ID
+        return f"{prefix}-{unique_id}"
 
     def __str__(self):
         return f"{self.flight_number} - {self.origin} to {self.destination}"
@@ -89,6 +89,7 @@ class Booking(models.Model):
     )
     booking_date = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
 
     def save(self, *args, **kwargs):
         # Generate a unique flight number if it doesn't already exist
@@ -100,7 +101,7 @@ class Booking(models.Model):
         """
         Generate a unique booking code.
         """
-        unique_id = shortuuid.ShortUUID().random(length=12)  # Generate a random 6-character ID
+        unique_id = uuid.uuid4()
         return f"{unique_id}"
 
     def __str__(self):

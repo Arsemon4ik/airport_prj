@@ -14,18 +14,18 @@
                         <h2 class="mb-0"><i class="fas fa-ticket-alt"></i> Забронюй</h2>
                     </div>
                     <div class="card-body p-4">
-                        <form method="POST">
+                        <form enctype="multipart/form-data" method="post">
                             {% csrf_token %}
 
                             <!-- Passenger Selection -->
                             <div class="mb-4">
-                                <h4 class="mb-3"><i class="fas fa-user-check"></i> Select Passenger</h4>
+                                <h4 class="mb-3"><i class="fas fa-user-check mr-2"></i>Оберіть пасажира </h4>
                                 <div class="input-group">
                                     <span class="input-group-text bg-light"><i
                                             class="fas fa-users text-primary"></i></span>
                                     <select class="form-select shadow-sm {% if form.passenger.errors %}is-invalid{% endif %}"
                                             id="passenger" name="passenger">
-                                        <option value="" disabled selected>Select a passenger</option>
+                                        <option value="" disabled selected>Оберіть пасажира</option>
                                         {% for passenger in form.passenger.field.queryset %}
                                             <option value="{{ passenger.id }}"
                                                     {% if passenger.id|stringformat:"s" == form.passenger.value|stringformat:"s" %}selected{% endif %}>
@@ -46,18 +46,18 @@
 
                             <!-- Booking Details -->
                             <div class="mb-4">
-                                <h4 class="mb-3"><i class="fas fa-bookmark"></i> Booking Details</h4>
+                                <h4 class="mb-3"><i class="fas fa-bookmark mr-3"></i>Деталі бронювання </h4>
 
                                 <!-- Flight Selection -->
                                 <div class="mb-3">
-                                    <label for="flight" class="form-label"><i class="fas fa-plane"></i> Select
-                                        Flight</label>
+                                    <label for="flight" class="form-label"><i class="fas fa-plane"></i> Обрати рейс
+                                    </label>
                                     <div class="input-group">
                                         <span class="input-group-text bg-light"><i
                                                 class="fas fa-plane-departure text-primary"></i></span>
                                         <select class="form-select shadow-sm {% if form.flight.errors %}is-invalid{% endif %}"
                                                 id="flight" name="flight">
-                                            <option value="" disabled selected>Select a flight</option>
+                                            <option value="" disabled selected>Оберіть рейс</option>
                                             {% for flight in form.flight.field.queryset %}
                                                 <option value="{{ flight.id }}"
                                                         {% if flight.id|stringformat:"s" == form.flight.value|stringformat:"s" %}selected{% endif %}>
@@ -71,15 +71,14 @@
 
                                 <!-- Baggage Selection -->
                                 <div class="mb-3">
-                                    <label for="baggage" class="form-label"><i class="fas fa-suitcase"></i> Baggage
-                                        Option</label>
+                                    <label for="baggage" class="form-label"><i class="fas fa-suitcase"></i> Багаж опція
+                                    </label>
                                     {{ formset.management_form }}
                                     <table>
                                         <thead>
                                         <tr>
-                                            <th>Total Weight</th>
-                                            <th>Baggage Type</th>
-                                            <th>Additional Fee</th>
+                                            <th>Загальна вага</th>
+                                            <th>Тип багажу</th>
                                         </tr>
                                         </thead>
                                         <tbody>
@@ -111,20 +110,6 @@
                                                         {% endif %}
                                                     </div>
                                                 </td>
-                                                <td>
-                                                    <div class="input-group">
-                                            <span class="input-group-text bg-light">
-                                                <i class="fas fa-dollar-sign text-primary"></i>
-                                            </span>
-                                                        {{ form.additional_baggage_fee }}
-                                                        {% if form.additional_baggage_fee.errors %}
-                                                            <div class="invalid-feedback">
-                                                                {{ form.additional_baggage_fee.errors|join:", " }}
-                                                            </div>
-                                                        {% endif %}
-                                                    </div>
-                                                </td>
-                                                
                                             </tr>
                                         {% endfor %}
                                         </tbody>
@@ -133,20 +118,20 @@
 
                                 <!-- Seat Class -->
                                 <div class="mb-3">
-                                    <label class="form-label"><i class="fas fa-chair"></i> Seat Class</label>
+                                    <label class="form-label"><i class="fas fa-chair"></i>Клас</label>
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="radio" name="seat_class" id="economy"
                                                value="economy"
                                                {% if form.seat_class.value == "economy" %}checked{% endif %}>
                                         <label class="form-check-label" for="economy"><i
-                                                class="fas fa-umbrella-beach"></i> Economy</label>
+                                                class="fas fa-umbrella-beach"></i> Економ</label>
                                     </div>
                                     <div class="form-check form-check-inline">
                                         <input class="form-check-input" type="radio" name="seat_class" id="business"
                                                value="business"
                                                {% if form.seat_class.value == "business" %}checked{% endif %}>
                                         <label class="form-check-label" for="business"><i class="fas fa-briefcase"></i>
-                                            Business</label>
+                                            Бізнес</label>
                                     </div>
                                 </div>
                             </div>
@@ -161,8 +146,17 @@
                         </form>
                     </div>
                     <div class="card-footer text-center bg-light py-3">
-                        <small>Your comfort, our priority!</small>
+                        <small>Ваш комфорт - наш пріоритет!</small>
                     </div>
+                    {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} mb-0 alert-dismissible fade show bg-warning"
+                             role="alert">
+                            <strong>Помилка: </strong> {{ message|safe }}
+                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+                    {% endfor %}
                 </div>
             </div>
         </div>

@@ -1,8 +1,19 @@
+import json
+
 from django.forms import modelformset_factory
+from django.http import JsonResponse
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
+
 from .models import Passenger, Flight, Booking, Baggage
 from .forms import PassengerForm, BookingForm, BaggageFormSet
+import logging
+from django.contrib import messages
+
+from .utils import MonoBankService, send_order_confirmation_email
+
+logger = logging.getLogger(__name__)
 
 
 @login_required
@@ -87,8 +98,9 @@ def flight_list(request):
 
 
 # List all bookings
+@login_required
 def booking_list(request):
-    bookings = Booking.objects.all()
+    bookings = Booking.objects.filter(passenger__managed_by=request.user)
 
     # Filters
     booking_status = request.GET.get('booking_status')
@@ -119,29 +131,98 @@ def booking_detail(request, pk):
 def booking_create(request):
     if request.method == 'POST':
         form = BookingForm(request.POST)
-        formset = BaggageFormSet(request.POST, queryset=Baggage.objects.none())  # Новий набір форм
+        formset = BaggageFormSet(request.POST, queryset=Baggage.objects.none())
+
+        monobank_client = MonoBankService()
+        total = 0
 
         if form.is_valid() and formset.is_valid():
-            # Збереження бронювання
-            booking = form.save(commit=False)
+            # Save the booking
+            booking = form.save()
+            flight = booking.flight
 
-            # Збереження багажу та прив'язка до бронювання
+            if booking.seat_class == 'economy':
+                ticket_price = flight.economy_price
+            elif booking.seat_class == 'business':
+                ticket_price = flight.business_price
+            else:
+                ticket_price = 0
+
+            total += ticket_price
+
             for baggage_form in formset:
-                if baggage_form.cleaned_data and not baggage_form.cleaned_data.get('DELETE'):  # Уникаємо порожніх форм
-                    baggage = baggage_form.save()
-                    baggage.save()
-                    booking.baggage = baggage
-            booking.save()# Прив'язуємо до бронювання
+                if baggage_form.cleaned_data and not baggage_form.cleaned_data.get('DELETE'):
+                    baggage = baggage_form.save(commit=False)
 
-            return redirect('booking_list')  # Перенаправлення після успіху
+                    if baggage.total_weight > 20:
+                        baggage.additional_baggage_fee = (baggage.total_weight - 20) * 20  # 1кг / 20 грн дод.плата
+                    else:
+                        baggage.additional_baggage_fee = 0
+                    total += baggage.additional_baggage_fee
+                    baggage.save()
+
+                    booking.baggage = baggage
+
+                booking.total_price = total
+                booking.save()
+
+            description = f"Сплата за квиток {flight.flight_number}"
+            payment_url = monobank_client.create_invoice(booking.booking_code, description, total)
+            print(payment_url)
+            if payment_url:
+                return redirect(payment_url)
+            else:
+                messages.error(request, f'Виникла помилка під час створення платежу')
+        else:
+            messages.error(request, f'Виникла помилка під час створення квитка: {form.errors} {formset.errors}')
     else:
         form = BookingForm()
-        formset = BaggageFormSet(queryset=Baggage.objects.none())  # Порожній набір форм
+        formset = BaggageFormSet(queryset=Baggage.objects.none())
 
     return render(request, 'booking_management/booking_create.html', {
         'form': form,
         'formset': formset,
     })
+
+
+@csrf_exempt
+def monopay_callback(request):
+    if request.method != 'POST':
+        logger.error(f'{request.method} in mono_checkout_callback is not allowed! \n{request.body}')
+        return JsonResponse({"message": f"{request.method} is not allowed in Callback"}, status=200)
+    try:
+        data = json.loads(request.body)
+        if not data:
+            logger.error(f'No data in call-back function mono_checkout_callback, request: \n{request.body}')
+            return JsonResponse({"message": "Callback received and processed"}, status=200)
+
+        status = data.get("status")
+        if status not in ['success', 'payment_on_delivery']:
+            return JsonResponse({"message": "Callback received and processed"}, status=200)
+
+        booking_ref = data.get("reference")
+
+        try:
+            booking = Booking.objects.get(booking_code=booking_ref)
+        except Booking.DoesNotExist:
+            logger.error(f'Error order not found with order_ref: {booking_ref}')
+            return JsonResponse({"error": "Order not found"}, status=404)
+
+        if booking.booking_status == 'Confirmed':
+            return JsonResponse({"message": "Booking has already confirmed"}, status=404)
+
+        if status == 'success':
+            booking.booking_status = 'Confirmed'
+            booking.save()
+            send_order_confirmation_email(booking)
+        return JsonResponse({"message": "Callback received and processed"}, status=200)
+
+    except json.JSONDecodeError:
+        return JsonResponse({"error": "Invalid JSON data"}, status=400)
+    except Exception as e:
+        logger.error(f'Error while trying to send email for order ref: {e}')
+        return JsonResponse({"error": 'Server error during call-back'}, status=500)
+
 
 # Update an existing booking
 def booking_update(request, pk):

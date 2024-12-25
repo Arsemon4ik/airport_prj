@@ -145,3 +145,33 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # CORS settings
 CORS_ALLOW_ALL_ORIGINS = True
 CORS_ALLOW_CREDENTIALS = True
+
+LOGGING_DIR = os.path.join(BASE_DIR, 'logs')
+
+LOGGING_LEVEL = 'ERROR'
+
+EMAIL_BACKEND = "django.core.mail.backends.dummy.EmailBackend"
+
+# LOGGING = {
+#     'version': 1,
+#     'disable_existing_loggers': False,
+#     'handlers': {
+#         'file': {
+#             'level': LOGGING_LEVEL,
+#             'class': 'logging.FileHandler',
+#             'filename': os.path.join(LOGGING_DIR, 'error.log'),
+#         },
+#     },
+#     'loggers': {
+#         'django': {
+#             'handlers': ['file'],
+#             'level': LOGGING_LEVEL,
+#             'propagate': True,
+#         },
+#     },
+# }
+
+try:
+    from .local_settings import *
+except ImportError:
+    pass
