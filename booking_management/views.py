@@ -1,7 +1,11 @@
 import json
+import qrcode
+import base64
 
 from django.forms import modelformset_factory
 from django.http import JsonResponse
+
+from io import BytesIO
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
@@ -122,9 +126,57 @@ def booking_list(request):
 
 
 # View booking details
+@login_required
 def booking_detail(request, pk):
-    booking = get_object_or_404(Booking, pk=pk)
-    return render(request, 'booking_management/booking_detail.html', {'booking': booking})
+    # Fetch the booking ensuring it belongs to the current user
+    booking = get_object_or_404(Booking, pk=pk, passenger__managed_by=request.user)
+
+    # Prepare data for QR code
+    qr_data = {
+        "Booking ID": booking.id,
+        "Passenger": f"{booking.passenger.first_name} {booking.passenger.last_name}",
+        "Email": booking.passenger.email,
+        "Phone": booking.passenger.phone,
+        "Flight Number": booking.flight.flight_number,
+        "Origin": booking.flight.origin,
+        "Destination": booking.flight.destination,
+        "Departure Time": booking.flight.departure_time.strftime("%Y-%m-%d %H:%M"),
+        "Arrival Time": booking.flight.arrival_time.strftime("%Y-%m-%d %H:%M"),
+        "Seat Class": booking.seat_class,
+        "Status": booking.booking_status,
+        "Total Price": str(booking.total_price),
+        "Booking Code": str(booking.booking_code),
+    }
+
+    # Convert data to JSON string
+    qr_data_json = json.dumps(qr_data)
+
+    # Generate QR code
+    qr = qrcode.QRCode(
+        version=1,  # Controls the size of the QR Code (1 is smallest)
+        error_correction=qrcode.constants.ERROR_CORRECT_L,
+        box_size=10,  # Controls how many pixels each "box" of the QR code is
+        border=4,  # Controls how many boxes thick the border should be
+    )
+    qr.add_data(qr_data_json)
+    qr.make(fit=True)
+    img = qr.make_image(fill_color="black", back_color="white")
+
+    # Save the QR code image to a BytesIO buffer
+    buffer = BytesIO()
+    img.save(buffer, format="PNG")
+    buffer.seek(0)
+
+    # Encode the image in Base64 to embed directly in HTML
+    qr_image_base64 = base64.b64encode(buffer.getvalue()).decode()
+    qr_image_data = f"data:image/png;base64,{qr_image_base64}"
+
+    context = {
+        'booking': booking,
+        'qr_code': qr_image_data,  # Pass the QR code data to the template
+    }
+
+    return render(request, 'booking_management/booking_detail.html', context)
 
 
 # Create a new booking

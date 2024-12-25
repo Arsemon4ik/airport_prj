@@ -18,58 +18,81 @@
                 
                 <!-- Card Body -->
                 <div class="card-body">
-                    <!-- Booking Status -->
-                    <div class="mb-4">
-                        <div class="section-title">
-                            <i class="fas fa-info-circle"></i>
-                            <h5>Status:</h5>
+                    <div class="row">
+                        <!-- Booking Information Column -->
+                        <div class="col-md-8">
+                            <!-- Booking Status -->
+                            <div class="mb-4">
+                                <div class="section-title">
+                                    <i class="fas fa-info-circle"></i>
+                                    <h5>Status:</h5>
+                                </div>
+                                <span class="badge badge-custom 
+                                    {% if booking.booking_status == 'Confirmed' %}
+                                        bg-success
+                                    {% elif booking.booking_status == 'Cancelled' %}
+                                        bg-danger
+                                    {% elif booking.booking_status == 'Pending' %}
+                                        bg-warning text-dark
+                                    {% else %}
+                                        bg-secondary
+                                    {% endif %}">
+                                    {{ booking.get_status_display }}
+                                </span>
+                            </div>
+                            
+                            <!-- Passenger Information -->
+                            <div class="mb-4">
+                                <div class="section-title">
+                                    <i class="fas fa-user"></i>
+                                    <h5>Passenger Information</h5>
+                                </div>
+                                <p><strong>Name:</strong> {{ booking.passenger.first_name }} {{ booking.passenger.last_name }}</p>
+                                <p><strong>Email:</strong> {{ booking.passenger.email }}</p>
+                                <p><strong>Phone:</strong> {{ booking.passenger.phone }}</p>
+                            </div>
+                            
+                            <!-- Flight Information -->
+                            <div class="mb-4">
+                                <div class="section-title">
+                                    <i class="fas fa-plane-departure"></i>
+                                    <h5>Flight Information</h5>
+                                </div>
+                                <p><strong>Flight Number:</strong> {{ booking.flight.flight_number }}</p>
+                                <p><strong>Origin:</strong> {{ booking.flight.origin }}</p>
+                                <p><strong>Destination:</strong> {{ booking.flight.destination }}</p>
+                                <p><strong>Departure Time:</strong> {{ booking.flight.departure_time|date:"M d, Y H:i" }}</p>
+                                <p><strong>Arrival Time:</strong> {{ booking.flight.arrival_time|date:"M d, Y H:i" }}</p>
+                            </div>
+                            
+                            <!-- Baggage and Seat Class -->
+                            <div class="mb-4">
+                                <div class="section-title">
+                                    <i class="fas fa-suitcase-rolling"></i>
+                                    <h5>Baggage and Seat Class</h5>
+                                </div>
+                                <p><strong>Baggage Option:</strong> {{ booking.baggage.get_baggage_type_display }} with {{ booking.baggage.total_weight }} kg</p>
+                                <p><strong>Seat Class:</strong> {{ booking.get_seat_class_display }}</p>
+                            </div>
                         </div>
-                        <span class="badge badge-custom 
-                            {% if booking.status == 'Confirmed' %}
-                                bg-success
-                            {% elif booking.status == 'Cancelled' %}
-                                bg-danger
-                            {% elif booking.status == 'Pending' %}
-                                bg-warning text-dark
+                        
+                        <!-- QR Code Column -->
+                        <div class="col-md-4 text-center">
+                            {% if booking.booking_status == 'Confirmed' %}
+                                <div class="mb-4">
+                                    <div class="section-title">
+                                        <i class="fas fa-qrcode"></i>
+                                        <h5>Your Booking QR Code</h5>
+                                    </div>
+                                    <img src="{{ qr_code }}" alt="QR Code for Booking {{ booking.id }}" class="img-fluid" style="max-width: 200px;">
+                                    <p class="mt-2">Scan this QR code for quick access to your booking details.</p>
+                                </div>
                             {% else %}
-                                bg-secondary
-                            {% endif %}">
-                            {{ booking.get_status_display }}
-                        </span>
-                    </div>
-                    
-                    <!-- Passenger Information -->
-                    <div class="mb-4">
-                        <div class="section-title">
-                            <i class="fas fa-user"></i>
-                            <h5>Passenger Information</h5>
+                                <div class="alert alert-warning" role="alert">
+                                    QR Code is available once your booking is confirmed.
+                                </div>
+                            {% endif %}
                         </div>
-                        <p><strong>Name:</strong> {{ booking.passenger.first_name }} {{ booking.passenger.last_name }}</p>
-                        <p><strong>Email:</strong> {{ booking.passenger.email }}</p>
-                        <p><strong>Phone:</strong> {{ booking.passenger.phone }}</p>
-                    </div>
-                    
-                    <!-- Flight Information -->
-                    <div class="mb-4">
-                        <div class="section-title">
-                            <i class="fas fa-plane-departure"></i>
-                            <h5>Flight Information</h5>
-                        </div>
-                        <p><strong>Flight Number:</strong> {{ booking.flight.flight_number }}</p>
-                        <p><strong>Origin:</strong> {{ booking.flight.origin }}</p>
-                        <p><strong>Destination:</strong> {{ booking.flight.destination }}</p>
-                        <p><strong>Departure Time:</strong> {{ booking.flight.departure_time|date:"M d, Y H:i" }}</p>
-                        <p><strong>Arrival Time:</strong> {{ booking.flight.arrival_time|date:"M d, Y H:i" }}</p>
-                    </div>
-                    
-                    <!-- Baggage and Seat Class -->
-                    <div class="mb-4">
-                        <div class="section-title">
-                            <i class="fas fa-suitcase-rolling"></i>
-                            <h5>Baggage and Seat Class</h5>
-                        </div>
-                        <p><strong>Baggage Option:</strong> {{ booking.baggage.get_baggage_type_display }} with {{ booking.baggage.total_weight }} weight</p>
-                        <p><strong>Seat Class:</strong> {{ booking.get_seat_class_display }}</p>
                     </div>
                 </div>
                 
