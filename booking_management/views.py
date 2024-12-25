@@ -1,7 +1,8 @@
+from django.forms import modelformset_factory
 from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
-from .models import Passenger, Flight, Booking
-from .forms import PassengerForm, BookingForm
+from .models import Passenger, Flight, Booking, Baggage
+from .forms import PassengerForm, BookingForm, BaggageFormSet
 
 
 @login_required
@@ -118,13 +119,29 @@ def booking_detail(request, pk):
 def booking_create(request):
     if request.method == 'POST':
         form = BookingForm(request.POST)
-        if form.is_valid():
-            form.save()
-            return redirect('booking_list')
+        formset = BaggageFormSet(request.POST, queryset=Baggage.objects.none())  # Новий набір форм
+
+        if form.is_valid() and formset.is_valid():
+            # Збереження бронювання
+            booking = form.save(commit=False)
+
+            # Збереження багажу та прив'язка до бронювання
+            for baggage_form in formset:
+                if baggage_form.cleaned_data and not baggage_form.cleaned_data.get('DELETE'):  # Уникаємо порожніх форм
+                    baggage = baggage_form.save()
+                    baggage.save()
+                    booking.baggage = baggage
+            booking.save()# Прив'язуємо до бронювання
+
+            return redirect('booking_list')  # Перенаправлення після успіху
     else:
         form = BookingForm()
-    return render(request, 'booking_management/booking_create.html', {'form': form})
+        formset = BaggageFormSet(queryset=Baggage.objects.none())  # Порожній набір форм
 
+    return render(request, 'booking_management/booking_create.html', {
+        'form': form,
+        'formset': formset,
+    })
 
 # Update an existing booking
 def booking_update(request, pk):

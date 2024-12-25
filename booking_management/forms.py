@@ -1,5 +1,6 @@
-from .models import Passenger, Booking
+from .models import Passenger, Booking, Baggage
 from django import forms
+from django.forms import modelformset_factory
 
 
 class PassengerForm(forms.ModelForm):
@@ -25,10 +26,28 @@ class PassengerForm(forms.ModelForm):
 class BookingForm(forms.ModelForm):
     class Meta:
         model = Booking
-        fields = ['passenger', 'flight', 'baggage', 'seat_class']
+        fields = ['passenger', 'flight', 'seat_class']
         widgets = {
             'passenger': forms.Select(attrs={'class': 'form-control'}),
             'flight': forms.Select(attrs={'class': 'form-control'}),
-            'baggage': forms.Select(attrs={'class': 'form-control'}),
             'seat_class': forms.Select(attrs={'class': 'form-control'}),
         }
+
+
+class BaggageForm(forms.ModelForm):
+    class Meta:
+        model = Baggage
+        fields = ['total_weight', 'baggage_type', 'additional_baggage_fee']
+        widgets = {
+            'total_weight': forms.NumberInput(attrs={'class': 'form-control'}),
+            'baggage_type': forms.Select(attrs={'class': 'form-control'}),
+            'additional_baggage_fee': forms.NumberInput(attrs={'class': 'form-control'}),
+        }
+
+# FormSet для багажу
+BaggageFormSet = modelformset_factory(
+        Baggage,
+        fields=('total_weight', 'baggage_type', 'additional_baggage_fee'),
+        extra=1,  # Додаткові форми для багажу
+        can_delete=True  # Можливість видалення
+    )
